@@ -12,12 +12,14 @@ var _notes = [];
 var AppStore = assign({}, EventEmitter.prototype, {
 	addNote: function(note){
 		_notes.push(note);
-		console.log(_notes);
 	},
 	getNotes: function(){
 		return _notes;
 	},
-	emitChange: function() {
+	setNotes: function(notes){
+		_notes = notes;
+	},
+	emitChange: function(){
 		this.emit(CHANGE_EVENT);
 	},
 	addChangeListener: function(callback){
@@ -32,13 +34,20 @@ AppDispatcher.register(function(payload){
 	var action = payload.action;
 	switch(action.actionType){
 		case AppConstants.ADD_NOTE:
-		console.log("Adding note");
-		//Store save
-		AppStore.addNote(action.note);
-		//API save
-
-		//Emit change
-		AppStore.emitChange();
+			//Store save
+			AppStore.addNote(action.note);
+			//API save
+			AppAPI.addNote(action.note);
+			//Emit change
+			AppStore.emitChange();
+			break;
+		case AppConstants.RECEIVE_NOTES:
+			console.log("receiving notes..");
+			//Store save
+			AppStore.setNotes(action.notes);
+			//Emit change
+			AppStore.emitChange();
+			break;
 	}
 	return true;
 });
